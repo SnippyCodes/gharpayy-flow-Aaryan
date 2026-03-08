@@ -2,13 +2,14 @@ import { ReactNode } from 'react';
 import AppSidebar from './AppSidebar';
 import { Bell, Search } from 'lucide-react';
 
-interface AppLayoutProps {
+export interface AppLayoutProps {
   children: ReactNode;
   title: string;
   subtitle?: string;
+  actions?: ReactNode;
 }
 
-const AppLayout = ({ children, title, subtitle }: AppLayoutProps) => {
+const AppLayout = ({ children, title, subtitle, actions }: AppLayoutProps) => {
   return (
     <div className="min-h-screen bg-background">
       <AppSidebar />
@@ -20,6 +21,7 @@ const AppLayout = ({ children, title, subtitle }: AppLayoutProps) => {
             {subtitle && <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>}
           </div>
           <div className="flex items-center gap-3">
+            {actions}
             <div className="relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <input
