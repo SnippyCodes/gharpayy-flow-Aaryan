@@ -78,7 +78,7 @@ export function useCreateRoom() {
       bed_count?: number; status?: string; actual_rent?: number | null;
       expected_rent?: number | null; room_type?: string | null; notes?: string | null;
     }) => {
-      const { data, error } = await supabase.from('rooms').insert(room).select().single();
+      const { data, error } = await supabase.from('rooms').insert(room as any).select().single();
       if (error) throw error;
       return data;
     },
