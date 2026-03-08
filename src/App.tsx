@@ -18,6 +18,7 @@ import Inventory from "./pages/Inventory";
 import EffortDashboard from "./pages/EffortDashboard";
 import Availability from "./pages/Availability";
 import Matching from "./pages/Matching";
+import Bookings from "./pages/Bookings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
