@@ -19,6 +19,7 @@ import EffortDashboard from "./pages/EffortDashboard";
 import Availability from "./pages/Availability";
 import Matching from "./pages/Matching";
 import Bookings from "./pages/Bookings";
+import ZoneManagement from "./pages/ZoneManagement";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +46,7 @@ const App = () => (
           <Route path="/availability" element={<ProtectedRoute><Availability /></ProtectedRoute>} />
           <Route path="/matching" element={<ProtectedRoute><Matching /></ProtectedRoute>} />
           <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} />
+          <Route path="/zones" element={<ProtectedRoute><ZoneManagement /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

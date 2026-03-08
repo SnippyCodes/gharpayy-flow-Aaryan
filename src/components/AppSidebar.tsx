@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Users, Kanban, CalendarCheck, BarChart3, Settings,
   MessageSquare, History, X, Moon, Sun, Building2, Bed, TrendingUp,
-  Map, Sparkles, Receipt,
+  Map, Sparkles, Receipt, Globe,
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,6 +24,7 @@ const supplyItems = [
   { to: '/availability', icon: Map, label: 'Availability' },
   { to: '/effort', icon: TrendingUp, label: 'Effort' },
   { to: '/matching', icon: Sparkles, label: 'Matching' },
+  { to: '/zones', icon: Globe, label: 'Zones' },
 ];
 
 const AppSidebar = ({ isOpen, onClose }: { isOpen?: boolean; onClose?: () => void }) => {

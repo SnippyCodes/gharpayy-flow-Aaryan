@@ -64,8 +64,10 @@ export type Database = {
           is_active: boolean
           name: string
           phone: string | null
+          role: string
           updated_at: string
           user_id: string | null
+          zone_id: string | null
         }
         Insert: {
           created_at?: string
@@ -74,8 +76,10 @@ export type Database = {
           is_active?: boolean
           name: string
           phone?: string | null
+          role?: string
           updated_at?: string
           user_id?: string | null
+          zone_id?: string | null
         }
         Update: {
           created_at?: string
@@ -84,10 +88,20 @@ export type Database = {
           is_active?: boolean
           name?: string
           phone?: string | null
+          role?: string
           updated_at?: string
           user_id?: string | null
+          zone_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agents_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       bed_status_log: {
         Row: {
@@ -281,27 +295,36 @@ export type Database = {
         Row: {
           agent_id: string | null
           channel: string
+          context_id: string | null
+          context_type: string | null
           created_at: string
           direction: string
           id: string
+          is_pinned: boolean
           lead_id: string
           message: string
         }
         Insert: {
           agent_id?: string | null
           channel?: string
+          context_id?: string | null
+          context_type?: string | null
           created_at?: string
           direction: string
           id?: string
+          is_pinned?: boolean
           lead_id: string
           message: string
         }
         Update: {
           agent_id?: string | null
           channel?: string
+          context_id?: string | null
+          context_type?: string | null
           created_at?: string
           direction?: string
           id?: string
+          is_pinned?: boolean
           lead_id?: string
           message?: string
         }
@@ -318,6 +341,73 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      escalations: {
+        Row: {
+          assigned_to: string | null
+          created_at: string
+          description: string | null
+          entity_id: string
+          entity_type: string
+          id: string
+          priority: string
+          raised_by: string | null
+          resolved_at: string | null
+          status: string
+          type: string
+          zone_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          entity_id: string
+          entity_type: string
+          id?: string
+          priority?: string
+          raised_by?: string | null
+          resolved_at?: string | null
+          status?: string
+          type?: string
+          zone_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          created_at?: string
+          description?: string | null
+          entity_id?: string
+          entity_type?: string
+          id?: string
+          priority?: string
+          raised_by?: string | null
+          resolved_at?: string | null
+          status?: string
+          type?: string
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "escalations_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_raised_by_fkey"
+            columns: ["raised_by"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "escalations_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
             referencedColumns: ["id"]
           },
         ]
@@ -363,6 +453,65 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      handoffs: {
+        Row: {
+          created_at: string
+          from_agent_id: string | null
+          id: string
+          lead_id: string
+          reason: string | null
+          to_agent_id: string | null
+          zone_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          from_agent_id?: string | null
+          id?: string
+          lead_id: string
+          reason?: string | null
+          to_agent_id?: string | null
+          zone_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          from_agent_id?: string | null
+          id?: string
+          lead_id?: string
+          reason?: string | null
+          to_agent_id?: string | null
+          zone_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "handoffs_from_agent_id_fkey"
+            columns: ["from_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "handoffs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "handoffs_to_agent_id_fkey"
+            columns: ["to_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "handoffs_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
             referencedColumns: ["id"]
           },
         ]
@@ -584,6 +733,7 @@ export type Database = {
           total_beds: number | null
           total_rooms: number | null
           virtual_tour_link: string | null
+          zone_id: string | null
         }
         Insert: {
           address?: string | null
@@ -603,6 +753,7 @@ export type Database = {
           total_beds?: number | null
           total_rooms?: number | null
           virtual_tour_link?: string | null
+          zone_id?: string | null
         }
         Update: {
           address?: string | null
@@ -622,6 +773,7 @@ export type Database = {
           total_beds?: number | null
           total_rooms?: number | null
           virtual_tour_link?: string | null
+          zone_id?: string | null
         }
         Relationships: [
           {
@@ -629,6 +781,13 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "owners"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "properties_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
             referencedColumns: ["id"]
           },
         ]
@@ -829,6 +988,57 @@ export type Database = {
           },
         ]
       }
+      team_queues: {
+        Row: {
+          created_at: string
+          dispatch_rule: string
+          id: string
+          is_active: boolean
+          last_assigned_idx: number
+          member_ids: string[]
+          owner_agent_id: string | null
+          team_name: string
+          zone_id: string
+        }
+        Insert: {
+          created_at?: string
+          dispatch_rule?: string
+          id?: string
+          is_active?: boolean
+          last_assigned_idx?: number
+          member_ids?: string[]
+          owner_agent_id?: string | null
+          team_name: string
+          zone_id: string
+        }
+        Update: {
+          created_at?: string
+          dispatch_rule?: string
+          id?: string
+          is_active?: boolean
+          last_assigned_idx?: number
+          member_ids?: string[]
+          owner_agent_id?: string | null
+          team_name?: string
+          zone_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_queues_owner_agent_id_fkey"
+            columns: ["owner_agent_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_queues_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "zones"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       visits: {
         Row: {
           assigned_staff_id: string | null
@@ -910,6 +1120,47 @@ export type Database = {
           },
         ]
       }
+      zones: {
+        Row: {
+          areas: string[]
+          city: string
+          color: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          manager_id: string | null
+          name: string
+        }
+        Insert: {
+          areas?: string[]
+          city?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          manager_id?: string | null
+          name: string
+        }
+        Update: {
+          areas?: string[]
+          city?: string
+          color?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          manager_id?: string | null
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "zones_manager_id_fkey"
+            columns: ["manager_id"]
+            isOneToOne: false
+            referencedRelation: "agents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -917,8 +1168,33 @@ export type Database = {
     Functions: {
       auto_lock_stale_rooms: { Args: never; Returns: undefined }
       calculate_lead_score: { Args: { p_lead_id: string }; Returns: number }
+      create_overdue_notifications: { Args: never; Returns: undefined }
       get_property_effort: { Args: { p_property_id: string }; Returns: Json }
+      match_beds_for_lead: {
+        Args: { p_budget: number; p_location: string; p_room_type?: string }
+        Returns: {
+          bed_id: string
+          bed_number: string
+          match_score: number
+          property_area: string
+          property_id: string
+          property_name: string
+          rent_per_bed: number
+          room_id: string
+          room_number: string
+          room_type: string
+        }[]
+      }
       recalculate_all_lead_scores: { Args: never; Returns: undefined }
+      route_lead_to_zone: {
+        Args: { p_location: string }
+        Returns: {
+          assigned_agent_id: string
+          queue_id: string
+          zone_id: string
+          zone_name: string
+        }[]
+      }
     }
     Enums: {
       bed_status:
