@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { createVisit } from "@/hooks/useCreateVisit";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Star, Shield, MapPin, Bed, Wifi, Coffee, Shirt, ShieldCheck, Sparkles, Users, MessageCircle, Video, CalendarCheck, CreditCard, Clock, Check, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -31,6 +33,8 @@ export default function PropertyDetail() {
   const [actionMode, setActionMode] = useState<ActionMode>(null);
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<any>(null);
+
+  const [visitDate, setVisitDate] = useState("");
   const [selectedBed, setSelectedBed] = useState<any>(null);
   const [customerForm, setCustomerForm] = useState({ name: '', phone: '', email: '', moveInDate: '' });
   const [reservationResult, setReservationResult] = useState<any>(null);
@@ -68,6 +72,50 @@ export default function PropertyDetail() {
   };
   const getSimBeds = (p: any) => (p.rooms || []).flatMap((r: any) => (r.beds || []).filter((b: any) => b.status === 'vacant')).length;
 
+
+
+
+
+
+
+const handleScheduleVisit = async () => {
+  try {
+    if (!visitDate) {
+      toast.error("Please select a visit date");
+      return;
+    }
+
+    // create a temporary lead for the customer
+    const { data: lead, error: leadError } = await supabase
+      .from("leads")
+      .insert({
+        name: "Website Visitor",
+        phone: "unknown",
+        source: "website",
+        property_id: property.id,
+        status: "visit_scheduled",
+      })
+      .select()
+      .single();
+
+    if (leadError) throw leadError;
+
+    await createVisit({
+      lead_id: lead.id,
+      property_id: property.id,
+      scheduled_at: new Date(visitDate).toISOString(),
+      visit_type: "physical",
+    });
+
+    toast.success("Visit scheduled successfully");
+
+    setActionMode(null);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to schedule visit");
+  }
+};
+
   const handlePreBook = async () => {
     if (!selectedBed || !selectedRoom || !customerForm.name || !customerForm.phone) {
       toast.error('Please fill in all required fields and select a bed.');
@@ -92,6 +140,36 @@ export default function PropertyDetail() {
     }
   };
 
+
+ const handleVirtualTour = async () => {
+  try {
+    const { data: lead, error } = await supabase
+      .from("leads")
+      .insert({
+        name: "Website Visitor",
+        phone: "unknown",
+        source: "website",
+        property_id: property.id,
+        status: "visit_scheduled",
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
+
+    await createVisit({
+      lead_id: lead.id,
+      property_id: property.id,
+      scheduled_at: new Date().toISOString(),
+      visit_type: "virtual",
+    });
+
+    toast.success("Virtual tour booked");
+    setActionMode(null);
+  } catch (error) {
+    toast.error("Failed to book virtual tour");
+  }
+};
   const handleConfirmPayment = async () => {
     if (!reservationResult?.reservation_id) return;
     try {
@@ -442,7 +520,11 @@ export default function PropertyDetail() {
           <div className="space-y-4">
             <div><Label>Your Name</Label><Input placeholder="Full name" /></div>
             <div><Label>Phone</Label><Input placeholder="+91..." /></div>
-            <div><Label>Preferred Date</Label><Input type="date" /></div>
+            <div><Label>Preferred Date</Label><Input
+  type="date"
+  value={visitDate}
+  onChange={(e) => setVisitDate(e.target.value)}
+/></div>
             <div><Label>Preferred Time</Label>
               <Select>
                 <SelectTrigger><SelectValue placeholder="Select time slot" /></SelectTrigger>
@@ -453,9 +535,16 @@ export default function PropertyDetail() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { toast.success("Visit request submitted! We'll confirm shortly."); setActionMode(null); }}>
-              Request Visit
-            </Button>
+           <Button onClick={handleScheduleVisit}>
+  Request Visit
+</Button>
+
+<Button
+  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+  onClick={handleVirtualTour}
+>
+  Book Virtual Tour
+</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -479,9 +568,12 @@ export default function PropertyDetail() {
                 </SelectContent>
               </Select>
             </div>
-            <Button className="w-full bg-accent hover:bg-accent/90 text-accent-foreground" onClick={() => { toast.success('Virtual tour booked! Check WhatsApp for the link.'); setActionMode(null); }}>
-              Book Virtual Tour
-            </Button>
+          <Button
+  className="w-full bg-accent hover:bg-accent/90 text-accent-foreground"
+  onClick={handleVirtualTour}
+>
+  Book Virtual Tour
+</Button>
           </div>
         </DialogContent>
       </Dialog>

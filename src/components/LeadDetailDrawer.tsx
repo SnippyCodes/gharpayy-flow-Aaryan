@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useAuth } from "@/contexts/AuthContext";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -35,6 +36,7 @@ const ACTION_ICONS: Record<string, typeof Activity> = {
 };
 
 const LeadDetailDrawer = ({ lead, open, onClose }: Props) => {
+  const { user } = useAuth();
   const updateLead = useUpdateLead();
   const { data: agents } = useAgents();
   const { data: conversations } = useConversations(lead?.id);
@@ -89,20 +91,48 @@ const LeadDetailDrawer = ({ lead, open, onClose }: Props) => {
     } catch (err: any) { toast.error(err.message); }
   };
 
-  const handleAddFollowUp = async () => {
-    if (!reminderDate) { toast.error('Pick a date'); return; }
-    try {
-      await createFollowUp.mutateAsync({
-        lead_id: lead.id,
-        agent_id: lead.assigned_agent_id,
-        reminder_date: new Date(reminderDate).toISOString(),
-        note: note || null,
-      });
-      toast.success('Follow-up scheduled');
-      setNote('');
-      setReminderDate('');
-    } catch (err: any) { toast.error(err.message); }
-  };
+
+const handleAddFollowUp = async () => {
+  if (!reminderDate) {
+    toast.error("Pick a date");
+    return;
+  }
+
+  if (!user) {
+    toast.error("User not authenticated");
+    return;
+  }
+
+  try {
+    // get agent record for this user
+    const { data: agent, error: agentError } = await supabase
+      .from("agents")
+      .select("id")
+      .eq("user_id", user.id)
+      .single();
+
+    if (agentError || !agent) {
+      toast.error("Agent record not found");
+      return;
+    }
+
+    await createFollowUp.mutateAsync({
+      lead_id: lead.id,
+      agent_id: agent.id,
+      reminder_date: new Date(reminderDate).toISOString(),
+      note: note || null,
+    });
+
+    toast.success("Follow-up scheduled");
+
+    setNote("");
+    setReminderDate("");
+  } catch (err: any) {
+    toast.error(err.message);
+  }
+};
+
+
 
   const formatAction = (action: string, metadata: any) => {
     switch (action) {
@@ -347,5 +377,7 @@ const LeadDetailDrawer = ({ lead, open, onClose }: Props) => {
     </Sheet>
   );
 };
+
+
 
 export default LeadDetailDrawer;
